@@ -1,12 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import axios from 'axios';
-import * as fs from 'fs';
+import * as stream from 'stream';
 
 @Injectable()
 export class SpringbootGeneratorService {
-  async generateSpringProject(filename: string): Promise<string> {
+  async generateSpringProject(filename: string): Promise<stream.PassThrough> {
     const url = 'https://start.spring.io/starter.zip';
-    const params = {
+    const params = new URLSearchParams({
       type: 'maven-project',
       language: 'java',
       bootVersion: '3.2.0',
@@ -19,20 +19,22 @@ export class SpringbootGeneratorService {
       dependencies: 'web,data-jpa,data-rest,postgresql',
       javaVersion: '17',
       packaging: 'jar',
-    };
+    });
 
     try {
       const response = await axios({
-        method: 'GET', // Usar GET ya que 'start.spring.io' acepta parámetros como query
+        method: 'GET',
         url,
         params,
         responseType: 'arraybuffer',
       });
 
-      // Guardar el archivo en el sistema de archivos local
-      fs.writeFileSync(`${filename}.zip`, response.data);
-      console.log(`Archivo ${filename}.zip guardado correctamente.`);
-      return `Archivo ${filename}.zip guardado correctamente.`;
+      // Crear un stream de lectura a partir del buffer de datos
+      const bufferStream = new stream.PassThrough();
+      bufferStream.end(response.data);
+
+      // Devolver el stream para que pueda ser enviado como respuesta
+      return bufferStream;
     } catch (error) {
       // Mostrar la respuesta de error decodificada
       if (error.response && error.response.data) {

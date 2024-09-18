@@ -1,15 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { SpringbootGeneratorService } from './springboot-generator.service';
 
 @Controller('springboot-generator')
 export class SpringbootGeneratorController {
   constructor(private readonly springbootGeneratorService: SpringbootGeneratorService) {}
 
-  @Post()
-  async generateSpringBoot(@Body('filename') filename: string): Promise<string> {
-    if (!filename) {
-      filename = 'spring-backend'; // Usar un nombre por defecto si no se proporciona
+  @Post('download')
+  async downloadSpringProject(@Res() res: Response) {
+    try {
+      const fileStream = await this.springbootGeneratorService.generateSpringProject('mi-proyecto-backend');
+      res.set({
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename="mi-proyecto-backend.zip"',
+      });
+      fileStream.pipe(res);
+    } catch (error) {
+      res.status(500).send('Error al generar el proyecto Spring Boot');
     }
-    return this.springbootGeneratorService.generateSpringProject(filename);
   }
 }
