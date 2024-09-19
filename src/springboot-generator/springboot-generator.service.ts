@@ -34,33 +34,51 @@ export class SpringbootGeneratorService {
       });
 
 
+     const  contentaAddProperties = `spring.datasource.url=jdbc:postgresql://localhost:5432/DiagramOfClassDB
+                          spring.datasource.username=postgres
+                          spring.datasource.password=1234
+                          spring.jpa.show-sql=true
+                          spring.jpa.hibernate.ddl-auto=update
+                          spring.jpa.generate-ddl=true`
+
       // Crear un stream de lectura a partir del buffer de datos
       const bufferStream = new stream.PassThrough();
       bufferStream.end(response.data);
 
-      // Descomprimir el archivo ZIP
+     // Descomprimir el archivo ZIP
       const zip = new AdmZip(response.data);
       const tempDir = path.join(__dirname, '..', '..', 'tmp', filename);
       zip.extractAllTo(path.join(__dirname, '..', '..', 'tmp', filename), true);
 
-// Crear un archivo .txt con el contenido "Hello World!"
-const txtFilePath = path.join(tempDir, 'text.txt');
-fs.writeFileSync(txtFilePath, 'Hello World!');
 
-// Volver a comprimir el proyecto modificado
-const modifiedZip = new AdmZip();
-modifiedZip.addLocalFolder(tempDir);
-const modifiedZipBuffer = modifiedZip.toBuffer();
+      const zipEntries = zip.getEntries();
+      zipEntries.forEach(function (zipEntry) {
+        if (zipEntry.entryName.endsWith('application.properties')) {
+          let fileContent = zipEntry.getData().toString('utf8');
+         // console.log(fileContent);
 
-// Crear un stream de lectura a partir del buffer de datos del ZIP modificado
-const modifiedBufferStream = new stream.PassThrough();
-modifiedBufferStream.end(modifiedZipBuffer);
+           // Añadir el contenido de contentaAddProperties
+           fileContent += contentaAddProperties;
+           zipEntry.setData(Buffer.from(fileContent, 'utf8'));
+ 
+         //  console.log('Modified content:', fileContent);
 
-// Limpiar el directorio temporal
-fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+      });
 
-// Devolver el stream para que pueda ser enviado como respuesta
-return modifiedBufferStream;
+     
+     
+  // Volver a comprimir el proyecto modificado
+  const modifiedZipBuffer = zip.toBuffer();
+  
+  // Crear un stream de lectura a partir del buffer de datos del ZIP modificado
+  const modifiedBufferStream = new stream.PassThrough();
+  modifiedBufferStream.end(modifiedZipBuffer);
+  
+  // Limpiar el directorio temporal
+  fs.rmSync(tempDir, { recursive: true, force: true });
+   // Devolver el stream para que pueda ser enviado como respuesta
+   return modifiedBufferStream;
 
     } catch (error) {
       // Mostrar la respuesta de error decodificada
@@ -73,4 +91,8 @@ return modifiedBufferStream;
       throw new HttpException('Error al generar el proyecto Spring Boot', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
+
+  
 }
