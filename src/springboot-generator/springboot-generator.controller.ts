@@ -20,5 +20,25 @@ export class SpringbootGeneratorController {
     }
   }
 
+  @Post('generate-entitys-repositories')
+  async generateEntitysRepositories(@Res() res: Response) {
+    try {
+      const generatedFiles = await this.springbootGeneratorService.generateEntitysRepositories();
+      res.json(generatedFiles);
+    } catch (error) {
+      res.status(500).send('Error al generar las entidades y repositorios');
+    }
+  }
+
+  @Post('generate-entitys-repositories-chatgpt')
+  async generateEntitysRepositoriesChatgpt(@Res() res: Response) {
+    try {
+      const generatedFiles = await this.springbootGeneratorService.generateEntitysRepositories();
+      res.json(generatedFiles);
+    } catch (error) {
+      res.status(500).send('Error al generar las entidades y repositorios');
+    }
+  }
+
 
 }

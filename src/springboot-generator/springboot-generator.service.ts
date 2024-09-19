@@ -94,5 +94,100 @@ export class SpringbootGeneratorService {
 
 
 
+
+  async generateEntitysRepositories(): Promise<{ [key: string]: string }> {
+    const jsonContent = {
+      "Products": {
+        "name": "string",
+        "price": "number"
+      }
+    };
+    const generatedFiles: { [key: string]: string } = {};
+    try {
+      console.log(jsonContent);
+
+      for (const entityName in jsonContent) {
+        if (jsonContent.hasOwnProperty(entityName)) {
+          const attributes = jsonContent[entityName];
+
+          // Generar el código de la entidad
+          let entityCode = `
+          package com.tuempresa.backend.datarest;
+          
+          import jakarta.persistence.Entity;
+          import jakarta.persistence.GeneratedValue;
+          import jakarta.persistence.GenerationType;
+          import jakarta.persistence.Id;
+          import lombok.Getter;
+          import lombok.Setter;
+          
+          @Getter
+          @Setter
+          @Entity
+          public class ${capitalize(entityName)} {
+          
+              @Id
+              @GeneratedValue(strategy = GenerationType.AUTO)
+              private long id;
+          `;
+
+          for (const attributeName in attributes) {
+            if (attributes.hasOwnProperty(attributeName)) {
+              const attributeType = attributes[attributeName];
+              entityCode += `
+              private ${mapType(attributeType)} ${attributeName};`;
+            }
+          }
+
+          entityCode += `
+          }
+          `;
+
+          // Generar el código del repositorio
+          let repositoryCode = `
+          package com.tuempresa.backend.datarest;
+
+          import org.springframework.data.repository.CrudRepository;
+          import org.springframework.data.repository.PagingAndSortingRepository;
+          import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+          
+          @RepositoryRestResource(collectionResourceRel = "${entityName.toLowerCase()}", path = "${entityName.toLowerCase()}")
+          public interface ${capitalize(entityName)}Repository extends PagingAndSortingRepository<${capitalize(entityName)}, Long>, CrudRepository<${capitalize(entityName)}, Long> {
+          }
+          `;
+
+          // Guardar los archivos generados en el objeto
+          generatedFiles[`${capitalize(entityName)}.java`] = entityCode;
+          generatedFiles[`${capitalize(entityName)}Repository.java`] = repositoryCode;
+        }
+      }
+      return generatedFiles;
+      
+    } catch (error) {
+      console.error('Error processing the JSON content:', error.message);
+      throw new HttpException('Error processing the JSON content', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+}
+
+
+
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function mapType(type: string): string {
+  switch (type.toLowerCase()) {
+    case 'string':
+      return 'String';
+    case 'number':
+      return 'Double';
+    case 'boolean':
+      return 'Boolean';
+    default:
+      return 'String';
+  }
+
+
   
 }
