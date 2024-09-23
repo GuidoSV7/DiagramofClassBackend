@@ -10,8 +10,13 @@ var AdmZip = require("adm-zip");
 
 @Injectable()
 export class SpringbootGeneratorService {
+
+  constructor(
+    private readonly gptService: GptService
+
+  ){}
   
-  private gptService: GptService;
+  
 
   async generateSpringProject(filename: string, xmltoentyrepoDto: XmlToEntyRepoDto): Promise<stream.PassThrough> {
     const url = 'https://start.spring.io/starter.zip';
@@ -71,9 +76,15 @@ export class SpringbootGeneratorService {
         }
       });
 
+      //Obtener Zip
+      const  ziprepoentyBuffer = await this.gptService.createjavafiles(xmltoentyrepoDto);
 
-      // const  ziprepoenty = this.gptService.createjavafiles(xmltoentyrepoDto);
-      // console.log(ziprepoenty);
+
+      // add local file
+      var content = "inner content of the file";
+      zip.addFile("mi-proyecto-backend/src/main/java/com/tuempresa/datarest/generades.zip", ziprepoentyBuffer);  
+
+
 
      
      

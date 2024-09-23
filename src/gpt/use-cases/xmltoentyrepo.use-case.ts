@@ -20,7 +20,7 @@ export const xmlToEntyRepoUseCase = async( openai: OpenAI,  options: Options ) =
       cada tabla, el NAME.JAVA Y EL NAMAREPOSITORY.JAVA que funcionen usando SpringBoot JPA Data Rest ,Para los getters y los setters usá @Getter @Setter, separamelo por archivo,
       y mandame un json separando cada archivo con su nombre y contenido.
       si salen errores tipo Bad control character in string literal in JSON solucionalos,
-      verificá que esté bien el json que me mandás, sin errores de 'json al inicio o al final.
+      verificá que esté bien el json que me mandás, sin errores de 'json al inicio o al final, no quiero errores en el JSON.
         
          Ejemplo de salida:
         [
