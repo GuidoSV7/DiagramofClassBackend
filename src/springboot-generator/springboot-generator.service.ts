@@ -76,15 +76,19 @@ export class SpringbootGeneratorService {
         }
       });
 
-      //Obtener Zip
-      const  ziprepoentyBuffer = await this.gptService.createjavafiles(xmltoentyrepoDto);
+    // Obtener el buffer del archivo ZIP
+    const ziprepoentyBuffer = await this.gptService.createjavafiles(xmltoentyrepoDto);
+
+    // Crear una instancia de AdmZip para el archivo ZIP recibido
+    const receivedZip = new AdmZip(ziprepoentyBuffer);
 
 
-      // add local file
-      var content = "inner content of the file";
-      zip.addFile("mi-proyecto-backend/src/main/java/com/tuempresa/datarest/generades.zip", ziprepoentyBuffer);  
-
-
+    // Descomprimir el archivo ZIP recibido y agregar su contenido al archivo ZIP final en la ruta especificada
+    receivedZip.getEntries().forEach(zipEntry => {
+      const entryData = zipEntry.getData();
+      const newEntryName = `mi-proyecto-backend/src/main/java/com/tuempresa/datarest/${zipEntry.entryName}`;
+      zip.addFile(newEntryName, entryData);
+    });
 
      
      
