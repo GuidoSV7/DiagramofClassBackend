@@ -65,25 +65,24 @@ export class SpringbootGeneratorService {
       zipEntries.forEach(function (zipEntry) {
         if (zipEntry.entryName.endsWith('application.properties')) {
           let fileContent = zipEntry.getData().toString('utf8');
-         // console.log(fileContent);
+
 
            // Añadir el contenido de contentaAddProperties
            fileContent += contentaAddProperties;
            zipEntry.setData(Buffer.from(fileContent, 'utf8'));
- 
-         //  console.log('Modified content:', fileContent);
+
 
         }
       });
 
-    // Obtener el buffer del archivo ZIP
+
     const ziprepoentyBuffer = await this.gptService.createjavafiles(xmltoentyrepoDto);
 
-    // Crear una instancia de AdmZip para el archivo ZIP recibido
+
     const receivedZip = new AdmZip(ziprepoentyBuffer);
 
 
-    // Descomprimir el archivo ZIP recibido y agregar su contenido al archivo ZIP final en la ruta especificada
+ 
     receivedZip.getEntries().forEach(zipEntry => {
       const entryData = zipEntry.getData();
       const newEntryName = `mi-proyecto-backend/src/main/java/com/tuempresa/datarest/${zipEntry.entryName}`;
