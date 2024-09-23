@@ -3,12 +3,17 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as stream from 'stream';
 import * as path from 'path';
+import { GptService } from 'src/gpt/gpt.service';
+import { XmlToEntyRepoDto } from 'src/gpt/dtos/xmltoentyrepo.dto';
 
 var AdmZip = require("adm-zip");
 
 @Injectable()
 export class SpringbootGeneratorService {
-  async generateSpringProject(filename: string): Promise<stream.PassThrough> {
+  
+  private gptService: GptService;
+
+  async generateSpringProject(filename: string, xmltoentyrepoDto: XmlToEntyRepoDto): Promise<stream.PassThrough> {
     const url = 'https://start.spring.io/starter.zip';
     const params = new URLSearchParams({
       type: 'maven-project',
@@ -19,7 +24,7 @@ export class SpringbootGeneratorService {
       artifactId: 'backend-generador',
       name: 'MiBackend',
       description: 'Proyecto Backend Generador',
-      packageName: 'com.tuempresa.backend',
+      packageName: 'com.tuempresa.datarest',
       dependencies: 'web,data-jpa,data-rest,postgresql',
       javaVersion: '17',
       packaging: 'jar',
@@ -65,6 +70,10 @@ export class SpringbootGeneratorService {
 
         }
       });
+
+
+      // const  ziprepoenty = this.gptService.createjavafiles(xmltoentyrepoDto);
+      // console.log(ziprepoenty);
 
      
      
