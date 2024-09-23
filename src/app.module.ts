@@ -9,6 +9,7 @@ import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SpringbootGeneratorModule } from './springboot-generator/springboot-generator.module';
+import { GptModule } from './gpt/gpt.module';
 
 
 @Module({
@@ -50,6 +51,8 @@ import { SpringbootGeneratorModule } from './springboot-generator/springboot-gen
     UsersModule,
 
     SpringbootGeneratorModule,
+
+    GptModule,
 
 
 
