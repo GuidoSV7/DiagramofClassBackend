@@ -30,7 +30,7 @@ export class SpringbootGeneratorService {
       name: 'MiBackend',
       description: 'Proyecto Backend Generador',
       packageName: 'com.tuempresa.datarest',
-      dependencies: 'web,data-jpa,data-rest,postgresql',
+      dependencies: 'web,data-jpa,data-rest,postgresql,lombok',
       javaVersion: '17',
       packaging: 'jar',
     });

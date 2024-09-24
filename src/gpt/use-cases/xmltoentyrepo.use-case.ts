@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { jsonrepair } from 'jsonrepair'
 
 interface Options {
   prompt: string;
@@ -26,34 +27,34 @@ export const xmlToEntyRepoUseCase = async( openai: OpenAI,  options: Options ) =
         [
           {
             "name": "Job.java",
-            "content": "import lombok.Getter;\nimport lombok.Setter;\nimport javax.persistence.Entity;\nimport javax.persistence.GeneratedValue;\nimport javax.persistence.GenerationType;\nimport javax.persistence.Id;\n\n@Entity\n@Getter\n@Setter\npublic class Job {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    private String name;\n}",
+            "content": "package com.tuempresa.datarest;\nimport lombok.Getter;\nimport lombok.Setter;\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.GeneratedValue;\nimport jakarta.persistence.GenerationType;\nimport jakarta.persistence.Id;\n\n@Entity\n@Getter\n@Setter\npublic class Job {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    private String name;\n}",
 
           },
           {
             "name": "JobRepository.java",
-            "content": "import org.springframework.data.jpa.repository.JpaRepository;\n\npublic interface JobRepository extends JpaRepository<Job, Long> {\n}",
+            "content": "package com.tuempresa.datarest;\nimport org.springframework.data.repository.CrudRepository;\n\n import org.springframework.data.repository.PagingAndSortingRepository;\n\nimport org.springframework.data.rest.core.annotation.RepositoryRestResource;\n\n @RepositoryRestResource(collectionResourceRel = "job", path = "job")\n\npublic interface JobRepository extends PagingAndSortingRepository<Job, Long>,, CrudRepository<Job,Long> {\n}",
 
           },
           {
             "name": "Person.java",
-            "content": "import lombok.Getter;\nimport lombok.Setter;\nimport javax.persistence.Entity;\nimport javax.persistence.GeneratedValue;\nimport javax.persistence.GenerationType;\nimport javax.persistence.Id;\n\n@Entity\n@Getter\n@Setter\npublic class Person {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    private String name;\n}",
+            "content": "package com.tuempresa.datarest;\nimport lombok.Getter;\nimport lombok.Setter;\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.GeneratedValue;\nimport jakarta.persistence.GenerationType;\nimport jakarta.persistence.Id;\n\n@Entity\n@Getter\n@Setter\npublic class Person {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    private String name;\n}",
 
           },
           {
             "name": "PersonRepository.java",
-            "content": "import org.springframework.data.jpa.repository.JpaRepository;\n\npublic interface PersonRepository extends JpaRepository<Person, Long> {\n}",
+            "content": "package com.tuempresa.datarest;\n\nimport org.springframework.data.repository.CrudRepository;\n\n import org.springframework.data.repository.PagingAndSortingRepository;\n\nimport org.springframework.data.rest.core.annotation.RepositoryRestResource;\n\n@RepositoryRestResource(collectionResourceRel = "person", path = "person")\n\npublic interface PersonRepository extends PagingAndSortingRepository<Person, Long>,, CrudRepository<Person,Long>",
 
           },
 
           {
             "name": "PersonJob.java",
-            "content": "import lombok.Getter;\nimport lombok.Setter;\nimport javax.persistence.Entity;\nimport javax.persistence.GeneratedValue;\nimport javax.persistence.GenerationType;\nimport javax.persistence.Id;\nimport javax.persistence.ManyToOne;\n\n@Entity\n@Getter\n@Setter\npublic class PersonJob {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n\n    @ManyToOne\n    private Person person;\n\n    @ManyToOne\n    private Job job;\n}",
+            "content": "package com.tuempresa.datarest;\nimport lombok.Getter;\nimport lombok.Setter;\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.GeneratedValue;\nimport jakarta.persistence.GenerationType;\nimport jakarta.persistence.Id;\nimport jakarta.persistence.ManyToOne;\n\n@Entity\n@Getter\n@Setter\npublic class PersonJob {\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n\n    @ManyToOne\n    private Person person;\n\n    @ManyToOne\n    private Job job;\n}",
 
           },
 
           {
             "name": "PersonJobRepository.java",
-            "content": "import org.springframework.data.jpa.repository.JpaRepository;\n\npublic interface PersonJobRepository extends JpaRepository<PersonJob, Long> {\n}"
+            "content": "package com.tuempresa.datarest;\n\nimport org.springframework.data.repository.CrudRepository;\n\n import org.springframework.data.repository.PagingAndSortingRepository;\n\nimport org.springframework.data.rest.core.annotation.RepositoryRestResource;\n\n@RepositoryRestResource(collectionResourceRel = "personjob", path = "personjob")\n\npublic interface PersonJobRepository extends PagingAndSortingRepository<PersonJob, Long>, CrudRepository<PersonJob,Long>"
 
         ]`
       },
@@ -64,14 +65,14 @@ export const xmlToEntyRepoUseCase = async( openai: OpenAI,  options: Options ) =
     
   ],
     model: "gpt-3.5-turbo",
-    temperature: 0.3
+    temperature: 0.5
 
   });
 
   // console.log(completion);
-  const jsonResp = JSON.parse(completion.choices[0].message.content);
+  const jsonResp = jsonrepair(completion.choices[0].message.content);
 
   //return completion.choices[0].message.content;
-  return jsonResp;
+  return JSON.parse(jsonResp);
 
 }

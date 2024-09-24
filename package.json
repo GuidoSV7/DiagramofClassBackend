@@ -40,6 +40,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.1.0",
+    "jsonrepair": "^3.8.1",
     "nestjs-telegram": "^1.2.0",
     "openai": "^4.63.0",
     "passport": "^0.7.0",
