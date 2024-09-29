@@ -14,6 +14,7 @@ export class ArchitectController {
     res.setHeader('Content-Type', 'application/xml');
     res.send(xml);
   }
+
   }
 
 

@@ -1,23 +1,27 @@
-import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Res, Body } from '@nestjs/common';
 import { Response } from 'express';
 import { SpringbootGeneratorService } from './springboot-generator.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ArchitectService } from 'src/architect/architect.service';
+import { CreateJsonDto } from 'src/architect/dtos/createjson.dto';
 
 @Controller('springboot-generator')
 export class SpringbootGeneratorController {
-  constructor(private readonly springbootGeneratorService: SpringbootGeneratorService) {}
+  constructor(
+    private readonly springbootGeneratorService: SpringbootGeneratorService,
+    private readonly architecService: ArchitectService
+  
+  ) {}
 
   @Post('download')
   @UseInterceptors(FileInterceptor('file'))
-  async downloadSpringProject( @UploadedFile() file: Express.Multer.File,@Res() res: Response) {
+  async downloadSpringProject( @Body() createJsonDto: CreateJsonDto, @Res() res: Response) {
     try {
 
-      if (!file) {
-        throw new BadRequestException('No file was uploaded.');
-      }
-      const xmlContent = file.buffer.toString('utf-8');
+      //const xmlContent = file.buffer.toString('utf-8');
+      const xmlContent = this.architecService.jsonToXml(createJsonDto);
 
-      const fileStream = await this.springbootGeneratorService.generateSpringProject('mi-proyecto-backend',{ prompt: xmlContent, file: file.path });
+      const fileStream = await this.springbootGeneratorService.generateSpringProject('mi-proyecto-backend',{ prompt: xmlContent });
       
       res.set({
         'Content-Type': 'application/zip',

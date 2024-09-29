@@ -19,7 +19,7 @@ export class GptService {
   })
 
   async xmltoentyrepo(xmltoentyrepoDto: XmlToEntyRepoDto) {
-    const { prompt, file } = xmltoentyrepoDto;
+    const { prompt } = xmltoentyrepoDto;
 
     const xmlContent = prompt;
    

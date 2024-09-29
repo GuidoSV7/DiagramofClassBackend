@@ -5,5 +5,7 @@ import { ArchitectController } from './architect.controller';
 @Module({
   controllers: [ArchitectController],
   providers: [ArchitectService],
+  exports: [ArchitectService]
+  
 })
 export class ArchitectModule {}

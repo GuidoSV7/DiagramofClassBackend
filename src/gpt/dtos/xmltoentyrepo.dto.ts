@@ -8,7 +8,5 @@ export class XmlToEntyRepoDto {
     @IsString()
     prompt: string;
 
-    @ApiProperty({ type: 'string', format: 'binary' })
-    @IsNotEmpty()
-    file: any;  // Definimos que recibimos un archivo, no un string
+   
 }

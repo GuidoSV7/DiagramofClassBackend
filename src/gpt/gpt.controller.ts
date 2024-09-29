@@ -18,7 +18,7 @@ export class GptController {
     }
     const xmlContent = file.buffer.toString('utf-8');
    
-    return this.gptService.xmltoentyrepo({ prompt: xmlContent, file: file.path });
+    return this.gptService.xmltoentyrepo({ prompt: xmlContent });
   }
 
 
@@ -35,7 +35,7 @@ export class GptController {
     const xmlContent = file.buffer.toString('utf-8');
 
   
-    const fileStream = await this.gptService.createjavafiles({ prompt: xmlContent, file: file.path });
+    const fileStream = await this.gptService.createjavafiles({ prompt: xmlContent});
 
     res.set({
       'Content-Type': 'application/zip',
