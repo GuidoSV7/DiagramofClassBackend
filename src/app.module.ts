@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SpringbootGeneratorModule } from './springboot-generator/springboot-generator.module';
 import { GptModule } from './gpt/gpt.module';
+import { ArchitectModule } from './architect/architect.module';
 
 
 @Module({
@@ -53,6 +54,8 @@ import { GptModule } from './gpt/gpt.module';
     SpringbootGeneratorModule,
 
     GptModule,
+
+    ArchitectModule,
 
 
 
