@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv44 } from 'uuid';
+import { CreateXmlDto } from './dtos/createxml.dto';
+import { parseStringPromise } from 'xml2js';
+import {  JSONXML } from './dtos/jsonxmldos.dto';
+import { Cell, CreateJsonDto } from './dtos/createjson.dto';
+import { json } from 'stream/consumers';
+import { UMLClass } from '../../dist/architect/dtos/jsonxml.dto';
 
 
 @Injectable()
@@ -267,6 +273,111 @@ export class ArchitectService {
  
     return xml;
   }
+
+
+    // Nuevo método para convertir XML a JSON
+    async xmlToJson(createXmlDto: CreateXmlDto): Promise<any> {
+      const json = await parseStringPromise(createXmlDto.xml);
+      return json;
+    }
+
+     // Nuevo método para convertir JSONXML a CreateJsonDto
+  async jsonToGraph(jsonXml: JSONXML): Promise<CreateJsonDto> {
+    const cells: Cell[] = [];
+
+    // const model = jsonXml.XMI['XMI.content'].Model['Namespace.ownedElement'].Package;
+    // const elements = model['Namespace.ownedElement'];
+
+    //console.log((jsonXml.XMI['XMI.content'][0]['UML:Model'][0]['UML:Namespace.ownedElement'][0]['UML:Package'][0]['UML:Namespace.ownedElement']));
+    const elements = jsonXml.XMI['XMI.content'][0]['UML:Model'][0]['UML:Namespace.ownedElement'][0]['UML:Package'][0]['UML:Namespace.ownedElement'][0];
+    const tables = elements['UML:Class'];
+    const links = elements['UML:Association'];
+
+    const tablesarray = tables.map((table: any) => {
+      return {
+        name: table.$.name,
+        attributes: table['UML:Classifier.feature'][0]['UML:Attribute'].map((attribute: any) => {
+          return {
+            name: attribute.$.name,
+            type: attribute['UML:ModelElement.taggedValue'][0]['UML:TaggedValue'][0].$.value
+          };
+        }),
+      };
+    });
+
+    const linksarray = links.map((table: any) => {
+      return {
+       
+      };
+    });
+
+    
+  // Imprimir el array completo en la consola con una profundidad de 2 niveles
+  console.log(JSON.stringify(links, null, 2));
+   
+    // elements.forEach((element: any) => {
+    //   if (element.Class) {
+    //     element.Class.forEach((item: any) => {
+    //       cells.push({
+    //         type: 'app.table', // Asigna un tipo predeterminado o basado en tus necesidades
+    //         id: item.$.name,
+    //         z: 1, // Asigna un valor predeterminado o basado en tus necesidades
+    //         attrs: {
+    //           headerLabel: {
+    //             text: item.$.name,
+    //           },
+    //           line: {
+    //             stroke: '#000000',
+    //             targetMarker: {
+    //               d: 'M 10 0 L 0 5 L 10 10 z',
+    //             },
+    //             type: 'line',
+    //           },
+    //         },
+    //         // Puedes agregar más propiedades aquí según sea necesario
+    //       });
+    //     });
+    //   }
+
+    //   if (element.Association) {
+    //     element.Association.forEach((item: any) => {
+    //       cells.push({
+    //         type: 'standar.link', // Asigna un tipo predeterminado o basado en tus necesidades
+    //         id: item.$.name,
+    //         z: 1, // Asigna un valor predeterminado o basado en tus necesidades
+    //         attrs: {
+    //           headerLabel: {
+    //             text: item.$.name,
+    //           },
+    //           line: {
+    //             stroke: '#000000',
+    //             targetMarker: {
+    //               d: 'M 10 0 L 0 5 L 10 10 z',
+    //             },
+    //             type: 'line',
+    //           },
+    //         },
+    //         // Puedes agregar más propiedades aquí según sea necesario
+    //       });
+    //     });
+    //   }
+    // });
+
+    const jsonGrapht: CreateJsonDto = {
+      cells: cells,
+    };
+
+    // // Imprimir el JSON completo en la consola
+    console.log(JSON.stringify(jsonGrapht, null, 2));
+
+    return jsonGrapht;
+  }
+    
+          
+    
+
+
+    
 
  
 }
