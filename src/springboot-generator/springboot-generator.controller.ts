@@ -19,7 +19,7 @@ export class SpringbootGeneratorController {
     try {
 
       //const xmlContent = file.buffer.toString('utf-8');
-      const xmlContent = this.architecService.jsonToXml(createJsonDto);
+      const xmlContent = await this.architecService.jsonToXml(createJsonDto);
 
       const fileStream = await this.springbootGeneratorService.generateSpringProject('mi-proyecto-backend',{ prompt: xmlContent });
       

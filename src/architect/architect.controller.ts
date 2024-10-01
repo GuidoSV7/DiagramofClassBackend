@@ -13,8 +13,8 @@ export class ArchitectController {
   constructor(private readonly architectService: ArchitectService) {}
 
   @Post('json-to-xml')
-  convertJsonToXml(@Body() createJsonDto: CreateJsonDto, @Res() res: Response) {
-    const xml = this.architectService.jsonToXml(createJsonDto);
+   async convertJsonToXml(@Body() createJsonDto: CreateJsonDto, @Res() res: Response) {
+    const xml = await this.architectService.jsonToXml(createJsonDto);
     res.setHeader('Content-Type', 'application/xml');
     res.send(xml);
   }

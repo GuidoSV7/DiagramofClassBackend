@@ -4,14 +4,14 @@ import { CreateXmlDto } from './dtos/createxml.dto';
 import { parseStringPromise } from 'xml2js';
 import {  JSONXML } from './dtos/jsonxmldos.dto';
 import { Cell, CreateJsonDto } from './dtos/createjson.dto';
-import { json } from 'stream/consumers';
-import { UMLClass } from '../../dist/architect/dtos/jsonxml.dto';
+
+
 
 
 @Injectable()
 export class ArchitectService {
   
-  jsonToXml(json: any): string {
+ async jsonToXml(json: any): Promise<string> {
     
     let xml = '<?xml version="1.0" encoding="windows-1252"?>\n';
     xml += '<XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3" timestamp="2024-09-10 13:39:27">\n';
@@ -46,11 +46,11 @@ export class ArchitectService {
     xml += '            <UML:TaggedValue tag="gentype" value="Java"/>\n';
     xml += '          </UML:ModelElement.taggedValue>\n';
     xml += '          <UML:Namespace.ownedElement>\n';
-    xml += this.convertObjectToXml(json, '            ');
+    xml += await this.convertObjectToXml(json, '            ');
     xml += '      </UML:Namespace.ownedElement>\n';
     xml += '    </UML:Package>\n';
 
-    xml += this.generateDataTypes(json, '      ');
+    xml += await this.generateDataTypes(json, '      ');
 
     xml += '   </UML:Namespace.ownedElement>\n';
     xml += '    </UML:Model>\n';
@@ -69,7 +69,7 @@ export class ArchitectService {
     xml += '        <UML:TaggedValue tag="styleex" value="SaveTag=CDB1A339;ExcludeRTF=0;DocAll=0;HideQuals=0;AttPkg=1;ShowTests=0;ShowMaint=0;SuppressFOC=1;MatrixActive=0;SwimlanesActive=1;KanbanActive=0;MatrixLineWidth=1;MatrixLineClr=0;MatrixLocked=0;TConnectorNotation=UML 2.1;TExplicitNavigability=0;AdvancedElementProps=1;AdvancedFeatureProps=1;AdvancedConnectorProps=1;m_bElementClassifier=1;SPT=1;MDGDgm=;STBLDgm=;ShowNotes=0;VisibleAttributeDetail=0;ShowOpRetType=1;SuppressBrackets=0;SuppConnectorLabels=0;PrintPageHeadFoot=0;ShowAsList=0;SuppressedCompartments=;Theme=:119;"/>\n';
     xml += '      </UML:ModelElement.taggedValue>\n';
 
-    xml += this.convertObjectDiagramElementToXml(json, '            ');
+    xml += await this.convertObjectDiagramElementToXml(json, '            ');
     xml += '  </UML:Diagram>\n';
     xml += '  </XMI.content>\n';
     xml += '  <XMI.difference/>\n';
@@ -80,7 +80,7 @@ export class ArchitectService {
   
     return xml;
   }
-  convertObjectDiagramElementToXml(json: any, indent: string = '      '): string {
+  async convertObjectDiagramElementToXml(json: any, indent: string = '      '): Promise<string> {
     let xml = `${indent}<UML:Diagram.element>\n`;
     let seqno = 1;
   
@@ -88,8 +88,8 @@ export class ArchitectService {
       if (cell.type === 'app.Table') {
         const x = cell.position.x;
         const y = cell.position.y;
-        const width = cell.size.width;
-        const height = cell.size.height;
+        const width = 260;
+        const height = 100;
         
         const left = x; 
         const top = y; 
@@ -109,7 +109,7 @@ export class ArchitectService {
 
   }
 
-  private generateDataTypes(json: any, indent: string = '      '): string {
+  private async generateDataTypes(json: any, indent: string = '      '): Promise<string> {
     let xml = '';
     const tableCount = json.cells.filter((cell: any) => cell.type === 'app.Table').length;
   
@@ -123,26 +123,26 @@ export class ArchitectService {
   }
 
   
-  private convertObjectToXml(obj: any, indent: string = ''): string {
+  private async convertObjectToXml(obj: any, indent: string = ''): Promise<string> {
     let xml = '';
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const value = obj[key];
         if (Array.isArray(value)) {
-          value.forEach((item) => {
+          for (const item of value) {
             if (item.type === 'app.Table') {
-              xml += this.convertTableToXml(item, indent);
+              xml += await this.convertTableToXml(item, indent);
             } else if (item.type === 'standard.Link') {
-              xml += this.convertLinkToXml(item, indent);
+              xml += await this.convertLinkToXml(item, indent);
             } else {
               xml += `${indent}<${key}>\n`;
-              xml += this.convertObjectToXml(item, indent + '  ');
+              xml += await this.convertObjectToXml(item, indent + '  ');
               xml += `${indent}</${key}>\n`;
             }
-          });
+          }
         } else if (typeof value === 'object' && value !== null) {
           xml += `${indent}<${key}>\n`;
-          xml += this.convertObjectToXml(value, indent + '  ');
+          xml += await this.convertObjectToXml(value, indent + '  ');
           xml += `${indent}</${key}>\n`;
         } else if (value !== null) {
           xml += `${indent}<${key}>${value}</${key}>\n`;
@@ -156,7 +156,7 @@ export class ArchitectService {
 
 
   
-  private convertTableToXml(table: any, indent: string): string {
+  private async convertTableToXml(table: any, indent: string): Promise<string> {
     let xml = `${indent}<UML:Class name="${table.attrs.headerLabel.text}" xmi.id="${table.id}" visibility="public" isRoot="false" isLeaf="false" isAbstract="false" isActive="false">\n`;
     xml += `${indent}  <UML:ModelElement.taggedValue>\n`;
     xml += `${indent}    <UML:TaggedValue tag="isSpecification" value="false"/>\n`;
@@ -197,7 +197,7 @@ export class ArchitectService {
       xml += `${indent}        <UML:TaggedValue tag="ordered" value="0"/>\n`;
       xml += `${indent}        <UML:TaggedValue tag="static" value="0"/>\n`;
       xml += `${indent}        <UML:TaggedValue tag="collection" value="false"/>\n`;
-      xml += `${indent}        <UML:TaggedValue tag="position" value="${index}"/>\n`;
+      xml += `${indent}        <UML:TaggedValue tag="padding" value="${index}"/>\n`;
       xml += `${indent}        <UML:TaggedValue tag="lowerBound" value="1"/>\n`;
       xml += `${indent}        <UML:TaggedValue tag="upperBound" value="1"/>\n`;
       xml += `${indent}        <UML:TaggedValue tag="duplicates" value="0"/>\n`;
@@ -214,7 +214,8 @@ export class ArchitectService {
     
     return xml;
   }
-  private convertLinkToXml(link: any, indent: string): string {
+
+  private async convertLinkToXml(link: any, indent: string): Promise<string> {
     let xml = `${indent}<UML:Association xmi.id="${link.id}" visibility="public" isRoot="false" isLeaf="false" isAbstract="false">\n`;
     xml += `${indent}  <UML:ModelElement.taggedValue>\n`;
     xml += `${indent}    <UML:TaggedValue tag="style" value="3"/>\n`;
@@ -281,103 +282,241 @@ export class ArchitectService {
       return json;
     }
 
+    async getPositions(jsonXml: JSONXML, id: string): Promise<any> {
+      const diagramElements = jsonXml.XMI['XMI.content'][0]['UML:Diagram'][0]['UML:Diagram.element'][0]['UML:DiagramElement'];
+    
+      if (!diagramElements || !Array.isArray(diagramElements)) {
+        throw new Error("Invalid JSON structure or no diagram elements found");
+      }
+
+     // console.log(JSON.stringify(diagramElements, null, 2));
+    
+      const positions = diagramElements.map(element => {
+        if (element.$.subject === id) {
+          const geometry = element.$.geometry;
+          const positionParts = geometry.split(';').filter(part => part);
+          const positionObj: any = {};
+          positionParts.forEach(part => {
+            const [key, value] = part.split('=');
+            positionObj[key.toLowerCase()] = parseInt(value, 10);
+          });
+  
+          // Calcular x e y
+          const x = (positionObj.left + positionObj.right) / 2;
+          const y = (positionObj.top + positionObj.bottom) / 2;
+          const width = positionObj.right - positionObj.left;
+          const height = positionObj.bottom - positionObj.top;
+      
+          // const x = cell.position.x;
+          // const y = cell.position.y;
+          // const width = cell.size.width;
+          // const height = cell.size.height;
+          
+          // const left = x; 
+          // const top = y; 
+          // const right = x + width; 
+          // const bottom = y + height; 
+
+
+          return { ...positionObj, x, y, width, height };
+        }
+        return null;
+      }).filter(position => position !== null);
+  
+     // console.log(JSON.stringify(positions, null, 2));
+      return positions;
+      
+    }
+
      // Nuevo método para convertir JSONXML a CreateJsonDto
-  async jsonToGraph(jsonXml: JSONXML): Promise<CreateJsonDto> {
+  async jsonToGraph(jsonXml: JSONXML): Promise<any> {
     const cells: Cell[] = [];
-
-    // const model = jsonXml.XMI['XMI.content'].Model['Namespace.ownedElement'].Package;
-    // const elements = model['Namespace.ownedElement'];
-
-    //console.log((jsonXml.XMI['XMI.content'][0]['UML:Model'][0]['UML:Namespace.ownedElement'][0]['UML:Package'][0]['UML:Namespace.ownedElement']));
     const elements = jsonXml.XMI['XMI.content'][0]['UML:Model'][0]['UML:Namespace.ownedElement'][0]['UML:Package'][0]['UML:Namespace.ownedElement'][0];
     const tables = elements['UML:Class'];
     const links = elements['UML:Association'];
 
-    const tablesarray = tables.map((table: any) => {
+    const tablesarray = await Promise.all(tables.map(async(table: any) => {
       return {
+        id: table.$['xmi.id'],
         name: table.$.name,
-        attributes: table['UML:Classifier.feature'][0]['UML:Attribute'].map((attribute: any) => {
+        positions:  await this.getPositions(jsonXml, table.$['xmi.id']),
+        
+        columns: table['UML:Classifier.feature'][0]['UML:Attribute'].map((attribute: any) => {
           return {
             name: attribute.$.name,
-            type: attribute['UML:ModelElement.taggedValue'][0]['UML:TaggedValue'][0].$.value
+            type: attribute['UML:ModelElement.taggedValue'][0]['UML:TaggedValue'][0].$.value,
           };
+        
         }),
       };
-    });
+    }));
 
-    const linksarray = links.map((table: any) => {
+    
+
+    const linksarray = links.map((link: any) => {
       return {
-       
+        id: link.$['xmi.id'] ?? null,
+        source: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.type ?? null,
+        target: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.type  ?? null,
+        aggregation: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.aggregation ?? null,
+        aggreationdos: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.aggregation ?? null,
+        ...(
+          link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.aggregation === 'none' && 
+          link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.aggregation === 'none' && 
+          {
+            targetText: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.multiplicity ?? null,
+            sourceText: link['UML:ModelElement.taggedValue'][0]['UML:TaggedValue'][1].$.multiplicity?? null
+          }
+        )
       };
     });
-
-    
-  // Imprimir el array completo en la consola con una profundidad de 2 niveles
-  console.log(JSON.stringify(links, null, 2));
+    console.log('aqui llega');
+   console.log(JSON.stringify(linksarray, null, 2));
+ 
    
-    // elements.forEach((element: any) => {
-    //   if (element.Class) {
-    //     element.Class.forEach((item: any) => {
-    //       cells.push({
-    //         type: 'app.table', // Asigna un tipo predeterminado o basado en tus necesidades
-    //         id: item.$.name,
-    //         z: 1, // Asigna un valor predeterminado o basado en tus necesidades
-    //         attrs: {
-    //           headerLabel: {
-    //             text: item.$.name,
-    //           },
-    //           line: {
-    //             stroke: '#000000',
-    //             targetMarker: {
-    //               d: 'M 10 0 L 0 5 L 10 10 z',
-    //             },
-    //             type: 'line',
-    //           },
-    //         },
-    //         // Puedes agregar más propiedades aquí según sea necesario
-    //       });
-    //     });
-    //   }
+    tablesarray.forEach((table: any) => {
+      
+      cells.push({ 
+        type: "app.Table",
+        columns: table.columns,
+        padding: {
+          top: 10,
+          bottom: 30,
+          left: 10,
+          right: 10
+        },
+        size: {
+          width: 260,
+          height: 100
+        },
+        itemMinLabelWidth: 80,
+        itemHeight: 25,
+        itemOffset: 0,
+        itemOverflow: true,
+        itemAboveViewSelector: "header",
+        itemBelowViewSelector: "header",
+        scrollTop: null,
+        itemButtonSize: 10,
+        itemIcon: {
+          width: 16,
+          height: 16,
+          padding: 2
+        },
+        position: {
+          x: table.positions[0].left,
+          y: table.positions[0].top
 
-    //   if (element.Association) {
-    //     element.Association.forEach((item: any) => {
-    //       cells.push({
-    //         type: 'standar.link', // Asigna un tipo predeterminado o basado en tus necesidades
-    //         id: item.$.name,
-    //         z: 1, // Asigna un valor predeterminado o basado en tus necesidades
-    //         attrs: {
-    //           headerLabel: {
-    //             text: item.$.name,
-    //           },
-    //           line: {
-    //             stroke: '#000000',
-    //             targetMarker: {
-    //               d: 'M 10 0 L 0 5 L 10 10 z',
-    //             },
-    //             type: 'line',
-    //           },
-    //         },
-    //         // Puedes agregar más propiedades aquí según sea necesario
-    //       });
-    //     });
-    //   }
-    // });
+        },
+        angle: 0,
+        id: table.id,
+        z: 1,
+        attrs: {
+          headerLabel: {
+            text: table.name
+          }
+        }
+      });
+    });
 
-    const jsonGrapht: CreateJsonDto = {
+    linksarray.forEach((link: any) => {
+      const linkObject: any = {
+        type: "standard.Link",
+        source: {
+          id: link.source
+        },
+        target: {
+          id: link.target
+        },
+        id: link.id,
+        z: 7,
+        attrs: {
+          line: {
+            stroke: "black",
+            targetMarker: (() => {
+              if (link.aggregation === 'composite' || link.aggregationdos === 'composite') {
+                return {
+                  d: "M 10 -5 0 0 10 10 Z",
+                  fill: "black"
+                };
+              } else if (link.aggregation === 'none' && link.aggregationdos === 'none') {
+                return {
+                  d: "M 0 0 L 0 0",
+                  stroke: "black"
+                };
+              } else if (link.aggregation === 'shared' || link.aggregationdos === 'shared') {
+                return {
+                  d: "M 10 -5 L 0 0 L 10 5 Z",
+                  fill: "white",
+                  stroke: "black"
+                };
+              } else {
+                return undefined;
+              }
+            })(),
+            type: link.aggregation || link.aggregationdos
+          }
+        }
+      };
+    
+      // Verificar si se deben agregar labels
+      if (link.aggregation === 'none' && link.aggregationdos === 'none') {
+        linkObject.labels = [
+          {
+            position: 0.25,
+            attrs: {
+              text: {
+                text: link.sourceText,
+                fill: "black",
+                fontSize: 12,
+                fontFamily: "Arial",
+                fontWeight: "bold",
+                textAnchor: "middle",
+                yAlignment: "middle"
+              },
+              rect: {
+                fill: "#FFFFFF",
+                stroke: "#000000",
+                strokeWidth: 1,
+                rx: 5,
+                ry: 5
+              }
+            }
+          },
+          {
+            position: 0.75,
+            attrs: {
+              text: {
+                text: link.targetText,
+                fill: "black",
+                fontSize: 12,
+                fontFamily: "Arial",
+                fontWeight: "bold",
+                textAnchor: "middle",
+                yAlignment: "middle"
+              },
+              rect: {
+                fill: "#FFFFFF",
+                stroke: "#000000",
+                strokeWidth: 1,
+                rx: 5,
+                ry: 5
+              }
+            }
+          }
+        ];
+      }
+    
+      cells.push(linkObject);
+    });
+    const jsonGrapht: any = {
       cells: cells,
     };
-
-    // // Imprimir el JSON completo en la consola
-    console.log(JSON.stringify(jsonGrapht, null, 2));
-
+  
+    // Imprimir el JSON completo en la consola
+     console.log(JSON.stringify(jsonGrapht, null, 2));
+  
     return jsonGrapht;
-  }
-    
-          
-    
+  } 
+}      
 
 
-    
-
- 
-}
