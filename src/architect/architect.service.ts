@@ -351,6 +351,28 @@ export class ArchitectService {
       };
     }));
 
+    // Función externa para determinar el targetMarker
+    const getTargetMarker = (link: any) => {
+      if (link.aggregation === 'composite' || link.aggregationdos === 'composite') {
+        return {
+          d: "M 10 -5 0 0 10 10 Z",
+          fill: "black"
+        };
+      } else if (link.aggregation === 'none' && link.aggregationdos === 'none') {
+        return {
+          d: "M 0 0 L 0 0",
+          stroke: "black"
+        };
+      } else if (link.aggregation === 'shared' || link.aggregationdos === 'shared') {
+        return {
+          d: "M 10 -5 L 0 0 L 10 5 Z",
+          fill: "white",
+          stroke: "black"
+        };
+      }
+      return undefined;
+    };
+
     
 
     const linksarray = links.map((link: any) => {
@@ -359,19 +381,19 @@ export class ArchitectService {
         source: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.type ?? null,
         target: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.type  ?? null,
         aggregation: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.aggregation ?? null,
-        aggreationdos: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.aggregation ?? null,
+        aggregationdos: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.aggregation ?? null,
         ...(
           link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.aggregation === 'none' && 
           link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.aggregation === 'none' && 
           {
             targetText: link['UML:Association.connection'][0]['UML:AssociationEnd'][0].$.multiplicity ?? null,
-            sourceText: link['UML:ModelElement.taggedValue'][0]['UML:TaggedValue'][1].$.multiplicity?? null
+            sourceText: link['UML:Association.connection'][0]['UML:AssociationEnd'][1].$.multiplicity?? null
           }
         )
       };
     });
     console.log('aqui llega');
-   console.log(JSON.stringify(linksarray, null, 2));
+   console.log(JSON.stringify(linksarray, null, 4));
  
    
     tablesarray.forEach((table: any) => {
@@ -453,7 +475,17 @@ export class ArchitectService {
                 return undefined;
               }
             })(),
-            type: link.aggregation || link.aggregationdos
+            type: (() => {
+              if (link.aggregation === 'composite' || link.aggregationdos === 'composite') {
+                return "composite";
+              } else if (link.aggregation === 'none' && link.aggregationdos === 'none') {
+                return "none";
+              } else if (link.aggregation === 'shared' || link.aggregationdos === 'shared') {
+                return "shared";
+              } else {
+                return undefined;
+              }
+            })()
           }
         }
       };
@@ -513,7 +545,7 @@ export class ArchitectService {
     };
   
     // Imprimir el JSON completo en la consola
-     console.log(JSON.stringify(jsonGrapht, null, 2));
+      console.log(JSON.stringify(jsonGrapht, null, 4));
   
     return jsonGrapht;
   } 
