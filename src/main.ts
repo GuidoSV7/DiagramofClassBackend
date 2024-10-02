@@ -5,8 +5,19 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
 
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    next();
+});
+
+  app.enableCors({
+    allowedHeaders:"*",
+    origin: "*"
+  });
+  
   const logger = new Logger('Bootstrap');
 
   app.setGlobalPrefix('api');
@@ -22,8 +33,8 @@ async function bootstrap() {
 
 
    const config = new DocumentBuilder()
-   .setTitle('Events Photos API')
-   .setDescription('Events Photos Endpoints')
+   .setTitle('Diagrama de Clases API')
+   .setDescription('Diagrama de Clases Endpoints')
    .setVersion('1.0')
    .build();
  const document = SwaggerModule.createDocument(app, config);

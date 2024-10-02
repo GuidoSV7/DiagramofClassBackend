@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
 import { SpringbootGeneratorModule } from './springboot-generator/springboot-generator.module';
 import { GptModule } from './gpt/gpt.module';
 import { ArchitectModule } from './architect/architect.module';
-
+import { SalaModule } from './sala/sala.module';
 
 @Module({
   imports: [
@@ -38,7 +38,9 @@ import { ArchitectModule } from './architect/architect.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    
+
+
+  
 
 
     CommonModule,
@@ -56,6 +58,8 @@ import { ArchitectModule } from './architect/architect.module';
     GptModule,
 
     ArchitectModule,
+
+    SalaModule,
 
 
 
