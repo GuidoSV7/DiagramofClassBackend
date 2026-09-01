@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import {Socket} from 'socket.io';
 
+
+interface ConnectedClients{
+    [id: string]: Socket;
+}
 interface Client{
     id: string;
     name: string;
@@ -7,27 +12,18 @@ interface Client{
 
 @Injectable()
 export class SalaService {
-    private clients: Record<string, Client> = {};
-    private diagramData: any = {};
-    
-    onClientConnected(client:Client){
-        this.clients[client.id] = client;
-    }
+  private connectedClients: ConnectedClients = {}
 
-    onClientDisconnected(id:string){
-        delete this.clients[id];
-    }
+  registerClient(client:Socket){
+    this.connectedClients[client.id] = client;
+  }
 
-    getClients(){
-        return Object.values(this.clients);
-    }
+  removeClient(clientId: string){
+    delete this.connectedClients[clientId];
+  }
 
-    getDiagram() {
-        return this.diagramData;
-      }
-    
-      updateDiagram(newData: any) {
-        this.diagramData = newData;
-      }
+  getConnectedClient(): number{
+    return Object.keys(this.connectedClients).length;
+  }
 
 }

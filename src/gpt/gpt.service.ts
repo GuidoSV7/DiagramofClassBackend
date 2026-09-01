@@ -4,6 +4,10 @@ import { XmlToEntyRepoDto } from './dtos/xmltoentyrepo.dto';
 import { xmlToEntyRepoUseCase } from './use-cases/xmltoentyrepo.use-case';
 import { promises as fs } from 'fs';
 import { CreateJavaFilesDto } from './dtos/create-java-files.dto';
+import { PdfDto } from './dtos/pdf.dto';
+import { PdfUseCase } from './use-cases/pdf.use.case';
+import { FlashCardsUseCase } from './use-cases/flashcards.use.case';
+
 var AdmZip = require("adm-zip");
 
 interface FileData {
@@ -47,4 +51,27 @@ export class GptService {
     return zip.toBuffer();
   }
 
+
+  async extractQuestionsFromPdf(text: string): Promise<any> {
+    try {
+      return await PdfUseCase(this.openai, {
+        prompt: text
+      });
+    } catch (error) {
+      console.error('Error en extractQuestionsFromPdf:', error);
+      throw error;
+    }
+  }
+
+  async flashCardFromPdf(text: string): Promise<any> {
+    try {
+      return await FlashCardsUseCase(this.openai, {
+        prompt: text
+      });
+    } catch (error) {
+      console.error('Error en FlashCardsUseCase:', error);
+      throw error;
+    }
+  }
+   
 }
